@@ -1,0 +1,11 @@
+<map id="Modules/Example/test/testQcExample.cxx" name="Modules/Example/test/testQcExample.cxx">
+<area shape="rect" id="node2" href="$ExampleTask_8h.html" title="../include/Example\l/ExampleTask.h" alt="" coords="864,95,995,136"/>
+<area shape="rect" id="node22" href="$TaskFactory_8h.html" title="QualityControl/TaskFactory.h" alt="" coords="1087,102,1281,129"/>
+<area shape="rect" id="node3" href="$TaskInterface_8h.html" title="QualityControl/TaskInterface.h" alt="" coords="577,259,777,285"/>
+<area shape="rect" id="node8" href="$Activity_8h.html" title="QualityControl/Activity.h" alt="" coords="337,333,501,360"/>
+<area shape="rect" id="node9" href="$ObjectsManager_8h.html" title="QualityControl/ObjectsManager.h" alt="" coords="525,333,739,360"/>
+<area shape="rect" id="node10" href="$MonitorObject_8h.html" title="QualityControl/MonitorObject.h" alt="" coords="869,408,1070,435"/>
+<area shape="rect" id="node15" href="$Quality_8h.html" title="QualityControl/Quality.h" alt="" coords="699,483,861,509"/>
+<area shape="rect" id="node18" href="$TaskConfig_8h.html" title="QualityControl/TaskConfig.h" alt="" coords="607,408,793,435"/>
+<area shape="rect" id="node26" href="$QcInfoLogger_8h.html" title="QualityControl/QcInfoLogger.h" alt="" coords="854,184,1053,211"/>
+</map>

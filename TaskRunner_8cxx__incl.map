@@ -1,0 +1,11 @@
+<map id="Framework/src/TaskRunner.cxx" name="Framework/src/TaskRunner.cxx">
+<area shape="rect" id="node13" href="$QcInfoLogger_8h.html" title="QualityControl/QcInfoLogger.h" alt="" coords="133,177,331,203"/>
+<area shape="rect" id="node31" href="$TaskFactory_8h.html" title="QualityControl/TaskFactory.h" alt="" coords="647,87,841,114"/>
+<area shape="rect" id="node35" href="$TaskRunner_8h.html" title="QualityControl/TaskRunner.h" alt="" coords="1863,87,2054,114"/>
+<area shape="rect" id="node14" href="$TaskInterface_8h.html" title="TaskInterface.h" alt="" coords="898,259,1011,285"/>
+<area shape="rect" id="node18" href="$Activity_8h.html" title="QualityControl/Activity.h" alt="" coords="1103,333,1267,360"/>
+<area shape="rect" id="node19" href="$ObjectsManager_8h.html" title="QualityControl/ObjectsManager.h" alt="" coords="435,333,650,360"/>
+<area shape="rect" id="node20" href="$MonitorObject_8h.html" title="QualityControl/MonitorObject.h" alt="" coords="657,408,858,435"/>
+<area shape="rect" id="node23" href="$Quality_8h.html" title="QualityControl/Quality.h" alt="" coords="805,483,966,509"/>
+<area shape="rect" id="node26" href="$TaskConfig_8h.html" title="QualityControl/TaskConfig.h" alt="" coords="1272,408,1459,435"/>
+</map>

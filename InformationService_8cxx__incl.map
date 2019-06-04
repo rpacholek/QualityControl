@@ -1,0 +1,10 @@
+<map id="Framework/src/InformationService.cxx" name="Framework/src/InformationService.cxx">
+<area shape="rect" id="node2" href="$InformationService_8h.html" title="InformationService.h" alt="" coords="1695,95,1837,121"/>
+<area shape="rect" id="node8" href="$QcInfoLogger_8h.html" title="QualityControl/QcInfoLogger.h" alt="" coords="1347,95,1545,121"/>
+<area shape="rect" id="node9" href="$TaskInterface_8h.html" title="TaskInterface.h" alt="" coords="549,177,663,203"/>
+<area shape="rect" id="node14" href="$Activity_8h.html" title="QualityControl/Activity.h" alt="" coords="524,259,688,285"/>
+<area shape="rect" id="node15" href="$ObjectsManager_8h.html" title="QualityControl/ObjectsManager.h" alt="" coords="712,259,927,285"/>
+<area shape="rect" id="node16" href="$MonitorObject_8h.html" title="QualityControl/MonitorObject.h" alt="" coords="1145,333,1347,360"/>
+<area shape="rect" id="node21" href="$Quality_8h.html" title="QualityControl/Quality.h" alt="" coords="691,408,852,435"/>
+<area shape="rect" id="node24" href="$TaskConfig_8h.html" title="QualityControl/TaskConfig.h" alt="" coords="402,408,589,435"/>
+</map>

@@ -1,0 +1,33 @@
+<map id="Framework/include/QualityControl/Activity.h" name="Framework/include/QualityControl/Activity.h">
+<area shape="rect" id="node2" href="$TaskInterface_8h.html" title="Framework/include/Quality\lControl/TaskInterface.h" alt="" coords="2467,95,2644,136"/>
+<area shape="rect" id="node3" href="$QcInfoLogger_8h.html" title="Framework/include/Quality\lControl/QcInfoLogger.h" alt="" coords="2101,184,2279,225"/>
+<area shape="rect" id="node12" href="$testQCTask_8cxx.html" title="Framework/test/testQCTask.cxx" alt="" coords="1917,370,2130,397"/>
+<area shape="rect" id="node18" href="$DatabaseFactory_8cxx.html" title="Framework/src/DatabaseFactory.cxx" alt="" coords="2440,281,2679,307"/>
+<area shape="rect" id="node28" href="$TaskRunner_8h.html" title="Framework/include/Quality\lControl/TaskRunner.h" alt="" coords="433,273,611,315"/>
+<area shape="rect" id="node31" href="$TaskInterface_8cxx.html" title="Framework/src/TaskInterface.cxx" alt="" coords="2446,191,2665,218"/>
+<area shape="rect" id="node32" href="$DaqTask_8h.html" title="Modules/Daq/include\l/Daq/DaqTask.h" alt="" coords="2905,184,3049,225"/>
+<area shape="rect" id="node33" href="$BenchmarkTask_8h.html" title="Modules/Example/include\l/Example/BenchmarkTask.h" alt="" coords="2689,184,2875,225"/>
+<area shape="rect" id="node34" href="$ExampleTask_8h.html" title="Modules/Example/include\l/Example/ExampleTask.h" alt="" coords="3104,184,3276,225"/>
+<area shape="rect" id="node35" href="$SkeletonTask_8h.html" title="Modules/Skeleton/include\l/Skeleton/SkeletonTask.h" alt="" coords="3315,184,3487,225"/>
+<area shape="rect" id="node4" href="$Checker_8h.html" title="Framework/include/Quality\lControl/Checker.h" alt="" coords="867,273,1044,315"/>
+<area shape="rect" id="node10" href="$TaskFactory_8h.html" title="Framework/include/Quality\lControl/TaskFactory.h" alt="" coords="2239,273,2416,315"/>
+<area shape="rect" id="node11" href="$TaskRunner_8cxx.html" title="Framework/src/TaskRunner.cxx" alt="" coords="640,370,849,397"/>
+<area shape="rect" id="node19" href="$InformationService_8cxx.html" title="Framework/src/Information\lService.cxx" alt="" coords="1781,273,1959,315"/>
+<area shape="rect" id="node20" href="$MySqlDatabase_8cxx.html" title="Framework/src/MySqlDatabase.cxx" alt="" coords="1984,281,2215,307"/>
+<area shape="rect" id="node21" href="$ObjectsManager_8cxx.html" title="Framework/src/ObjectsManager.cxx" alt="" coords="1120,281,1353,307"/>
+<area shape="rect" id="node22" href="$RepositoryBenchmark_8cxx.html" title="Framework/src/Repository\lBenchmark.cxx" alt="" coords="1378,273,1554,315"/>
+<area shape="rect" id="node23" href="$testQcInfoLogger_8cxx.html" title="Framework/test/testQcInfo\lLogger.cxx" alt="" coords="1578,273,1757,315"/>
+<area shape="rect" id="node24" href="$DaqTask_8cxx.html" title="Modules/Daq/src/DaqTask.cxx" alt="" coords="2875,281,3078,307"/>
+<area shape="rect" id="node25" href="$BenchmarkTask_8cxx.html" title="Modules/Example/src\l/BenchmarkTask.cxx" alt="" coords="2703,273,2851,315"/>
+<area shape="rect" id="node26" href="$ExampleTask_8cxx.html" title="Modules/Example/src\l/ExampleTask.cxx" alt="" coords="3103,273,3251,315"/>
+<area shape="rect" id="node27" href="$SkeletonTask_8cxx.html" title="Modules/Skeleton/src\l/SkeletonTask.cxx" alt="" coords="3327,273,3475,315"/>
+<area shape="rect" id="node5" href="$Checker_8cxx.html" title="Framework/src/Checker.cxx" alt="" coords="429,370,615,397"/>
+<area shape="rect" id="node6" href="$CheckerFactory_8cxx.html" title="Framework/src/CheckerFactory.cxx" alt="" coords="1351,370,1581,397"/>
+<area shape="rect" id="node7" href="$runBasic_8cxx.html" title="This is an executable showing QC Task&#39;s usage in Data Processing Layer. " alt="" coords="1606,370,1795,397"/>
+<area shape="rect" id="node8" href="$runMergerTest_8cxx.html" title="This is DPL workflow to see HistoMerger in action. " alt="" coords="873,370,1096,397"/>
+<area shape="rect" id="node9" href="$runReadout_8cxx.html" title="This is an executable showing QC Task&#39;s usage in Data Processing Layer with Readout as external data ..." alt="" coords="1121,370,1326,397"/>
+<area shape="rect" id="node13" href="$testQcDaq_8cxx.html" title="Modules/Daq/test/testQcDaq.cxx" alt="" coords="2685,370,2903,397"/>
+<area shape="rect" id="node15" href="$testQcExample_8cxx.html" title="Modules/Example/test\l/testQcExample.cxx" alt="" coords="3057,363,3209,404"/>
+<area shape="rect" id="node17" href="$testQcSkeleton_8cxx.html" title="Modules/Skeleton/test\l/testQcSkeleton.cxx" alt="" coords="3505,363,3657,404"/>
+<area shape="rect" id="node30" href="$TaskRunnerFactory_8cxx.html" title="Framework/src/TaskRunner\lFactory.cxx" alt="" coords="221,363,405,404"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="Modules/Example/include/Example/BenchmarkTask.h" name="Modules/Example/include/Example/BenchmarkTask.h">
+<area shape="rect" id="node2" href="$TaskInterface_8h.html" title="QualityControl/TaskInterface.h" alt="" coords="279,102,479,129"/>
+<area shape="rect" id="node7" href="$Activity_8h.html" title="QualityControl/Activity.h" alt="" coords="618,184,782,211"/>
+<area shape="rect" id="node8" href="$ObjectsManager_8h.html" title="QualityControl/ObjectsManager.h" alt="" coords="806,184,1021,211"/>
+<area shape="rect" id="node9" href="$MonitorObject_8h.html" title="QualityControl/MonitorObject.h" alt="" coords="403,259,605,285"/>
+<area shape="rect" id="node14" href="$Quality_8h.html" title="QualityControl/Quality.h" alt="" coords="663,333,825,360"/>
+<area shape="rect" id="node17" href="$TaskConfig_8h.html" title="QualityControl/TaskConfig.h" alt="" coords="900,333,1087,360"/>
+</map>

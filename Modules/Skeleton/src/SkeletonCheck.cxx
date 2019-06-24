@@ -31,11 +31,12 @@ SkeletonCheck::~SkeletonCheck() {}
 
 void SkeletonCheck::configure(std::string) {}
 
-Quality SkeletonCheck::check(std::map<std::string, std::share_ptr<MonitorObject>>* moMap)
+Quality SkeletonCheck::check(std::map<std::string, std::shared_ptr<MonitorObject>>* moMap)
 //Quality SkeletonCheck::check(const MonitorObject* mo)
 {
   Quality result = Quality::Null;
-  auto mo = moMap->get("example");
+  std::string key = "example";
+  auto mo = (*moMap)[key];
 
   if (mo->getName() == "example") {
     auto* h = dynamic_cast<TH1F*>(mo->getObject());

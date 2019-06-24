@@ -16,6 +16,7 @@
 #ifndef QC_CHECKER_CHECKINTERFACE_H
 #define QC_CHECKER_CHECKINTERFACE_H
 
+#include <map>
 #include "QualityControl/MonitorObject.h"
 #include "QualityControl/Quality.h"
 
@@ -52,7 +53,7 @@ class CheckInterface
   ///
   /// @param mo The MonitorObject to check.
   /// @return The quality of the object.
-  virtual Quality check(map<std::string, std::shared_ptr<MonitorObject>>* moMap) = 0;
+  virtual Quality check(std::map<std::string, std::shared_ptr<MonitorObject>>* moMap) = 0;
 
   /// \brief Modify the aspect of the plot.
   ///

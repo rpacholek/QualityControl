@@ -20,6 +20,7 @@ set(
   src/InfrastructureGenerator.cxx
   src/runnerUtils.h
   src/ServiceDiscovery.cxx
+  src/MonitorObjectPolicy.cxx
 )
 
 set(
@@ -36,6 +37,7 @@ set(
   include/QualityControl/TaskRunnerFactory.h
   include/QualityControl/HistoMerger.h
   include/QualityControl/InfrastructureGenerator.h
+  include/QualityControl/MonitorObjectPolicy.h
 )
 
 if(ENABLE_MYSQL)

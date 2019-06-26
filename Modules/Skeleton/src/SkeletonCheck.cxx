@@ -35,7 +35,8 @@ Quality SkeletonCheck::check(std::map<std::string, std::shared_ptr<MonitorObject
 //Quality SkeletonCheck::check(const MonitorObject* mo)
 {
   Quality result = Quality::Null;
-  std::string key = "example";
+  std::string key = "QcTask";
+  if (moMap->find(key) != moMap->end()){
   auto mo = (*moMap)[key];
 
   if (mo->getName() == "example") {
@@ -51,6 +52,7 @@ Quality SkeletonCheck::check(std::map<std::string, std::shared_ptr<MonitorObject
         result = Quality::Medium;
       }
     }
+  }
   }
   return result;
 }

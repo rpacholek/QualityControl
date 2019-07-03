@@ -50,6 +50,7 @@ class Checker : public framework::Task
  public:
   /// Constructor
   Checker(std::string checkerName, std::string configurationSource);
+  Checker(std::vector<std::string> checkerNames, std::string configurationSource);
 
   /// Destructor
   ~Checker() override;
@@ -104,6 +105,7 @@ class Checker : public framework::Task
   inline void initDatabase();
   inline void initMonitoring();
   inline void initPolicy();
+  inline void populateConfig();
 
   /**
    * Get the check specified by its name and class.
@@ -117,7 +119,7 @@ class Checker : public framework::Task
   CheckInterface* getCheck(std::string checkName, std::string className);
 
   // General state
-  std::string mCheckerName;
+  std::vector<std::string> mCheckerNames;
   std::string mConfigurationSource;
   o2::quality_control::core::QcInfoLogger& mLogger;
   std::shared_ptr<o2::quality_control::repository::DatabaseInterface> mDatabase;

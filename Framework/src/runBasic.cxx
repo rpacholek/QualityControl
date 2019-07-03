@@ -91,7 +91,7 @@ WorkflowSpec defineDataProcessing(const ConfigContext& config)
       (AlgorithmSpec::InitCallback) [](InitContext&) {
         std::default_random_engine generator(11);
         return (AlgorithmSpec::ProcessCallback) [generator](ProcessingContext& processingContext) mutable {
-          usleep(100000);
+          usleep(1000);
           size_t length = generator() % 10000;
           auto data = processingContext.outputs().make<char>(Output{ "ITS", "RAWDATA", 0, Lifetime::Timeframe },
                                                              length);
@@ -119,7 +119,7 @@ WorkflowSpec defineDataProcessing(const ConfigContext& config)
   DataProcessorSpec printer{
     "printer",
     Inputs{
-      { "checked-mo", "QC", Checker::createCheckerDataDescription(getFirstTaskName(qcConfigurationSource)), 0 } },
+      { "checked-mo", "QC", Checker::createCheckerDataDescription(getFirstCheckerName(qcConfigurationSource)), 0 } },
     Outputs{},
     adaptFromTask<o2::quality_control::example::ExamplePrinterSpec>()
   };

@@ -36,6 +36,8 @@
 namespace o2::quality_control::checker
 {
 
+typedef std::map<std::string, Quality> CheckResult;
+
 /// \brief The class in charge of running the checks on a MonitorObject.
 ///
 /// A Checker is in charge of loading/instantiating the proper checks for a given MonitorObject, to configure them
@@ -69,6 +71,8 @@ class Checker : public framework::Task
   static o2::header::DataDescription createCheckerDataDescription(const std::string taskName);
   static o2::framework::Inputs createInputSpec(const std::string checkName, const std::string configSource);
 
+  std::string getDeviceName() { return mDeviceName; };
+  static std::string createCheckerIdString();
  private:
   /**
    * \brief Evaluate the quality of a MonitorObject.
@@ -80,14 +84,14 @@ class Checker : public framework::Task
    * @param mo The MonitorObject to evaluate and whose quality will be set according
    *        to the worse quality encountered while running the Check's.
    */
-  void check(std::map<std::string, std::shared_ptr<MonitorObject>> moMap);
+  CheckResult check(std::map<std::string, std::shared_ptr<MonitorObject>> moMap);
 
   /**
    * \brief Store the MonitorObject in the database.
    *
    * @param mo The MonitorObject to be stored in the database.
    */
-  void store(std::shared_ptr<MonitorObject> mo);
+  void store(CheckResult result);
 
   /**
    * \brief Send the MonitorObject on FairMQ to whoever is listening.
@@ -102,10 +106,12 @@ class Checker : public framework::Task
   void loadLibrary(const std::string libraryName);
 
   void update(std::shared_ptr<MonitorObject> mo);
+  void trigger();
   inline void initDatabase();
   inline void initMonitoring();
   inline void initPolicy();
   inline void populateConfig();
+
 
   /**
    * Get the check specified by its name and class.
@@ -119,6 +125,7 @@ class Checker : public framework::Task
   CheckInterface* getCheck(std::string checkName, std::string className);
 
   // General state
+  std::string mDeviceName;
   std::vector<std::string> mCheckerNames;
   std::string mConfigurationSource;
   o2::quality_control::core::QcInfoLogger& mLogger;
@@ -144,6 +151,7 @@ class Checker : public framework::Task
   int mTotalNumberHistosReceived;
   AliceO2::Common::Timer timer;
 };
+
 
 } // namespace o2::quality_control::checker
 

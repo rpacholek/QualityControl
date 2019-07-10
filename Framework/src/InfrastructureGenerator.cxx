@@ -17,6 +17,7 @@
 #include "QualityControl/InfrastructureGenerator.h"
 #include "QualityControl/TaskRunnerFactory.h"
 #include "QualityControl/CheckerFactory.h"
+#include "QualityControl/QcInfoLogger.h"
 #include <boost/property_tree/ptree.hpp>
 #include <QualityControl/HistoMerger.h>
 #include <QualityControl/TaskRunner.h>
@@ -109,13 +110,15 @@ o2::framework::WorkflowSpec InfrastructureGenerator::generateRemoteInfrastructur
   typedef std::vector<std::string> CheckerNames;
   std::map<InputNames, CheckerNames> checkerMap;
   for (const auto& [checkerName, checkerConfig] : config->getRecursive("qc.check")) {
+    QcInfoLogger::GetInstance() << ">> Checker name : " << checkerName << AliceO2::InfoLogger::InfoLogger::endm;
     InputNames inputNames;
     if (checkerConfig.get<bool>("active", true)) {
       for (const auto& [inputName, inputConfig]: checkerConfig.get_child("dataSource")) {
-        inputNames.push_back(std::string(inputConfig.get_value<std::string>("name")));
+        QcInfoLogger::GetInstance() << inputConfig.get<std::string>("name") << AliceO2::InfoLogger::InfoLogger::endm;
+        inputNames.push_back(inputConfig.get<std::string>("name"));
       }
       std::sort(inputNames.begin(), inputNames.end());
-      if (checkerMap.find(inputNames) != checkerMap.end()){
+      if (checkerMap.find(inputNames) == checkerMap.end()){
         checkerMap.insert(std::pair<InputNames, CheckerNames>(inputNames, {std::string(checkerName)}));
       } else {
         checkerMap[inputNames].push_back(std::string(checkerName));
@@ -123,6 +126,14 @@ o2::framework::WorkflowSpec InfrastructureGenerator::generateRemoteInfrastructur
     }
   }
   for(const auto& [inputNames, checkerNames]: checkerMap){ 
+    //Logging
+    QcInfoLogger::GetInstance() << ">> Inputs (" << inputNames.size() << "): ";
+    for (auto& name: inputNames) QcInfoLogger::GetInstance() << name << " ";
+    QcInfoLogger::GetInstance()<< " checkers ("<< checkerNames.size()<<"): ";
+    for (auto& name: checkerNames) QcInfoLogger::GetInstance() << name << " ";
+    QcInfoLogger::GetInstance() << AliceO2::InfoLogger::InfoLogger::endm;
+    
+    //push workflow
     workflow.emplace_back(checkerFactory.create(checkerNames, configurationSource));
   }
 
@@ -138,6 +149,7 @@ void InfrastructureGenerator::generateRemoteInfrastructure(framework::WorkflowSp
 void InfrastructureGenerator::customizeInfrastructure(std::vector<framework::CompletionPolicy>& policies)
 {
   TaskRunnerFactory::customizeInfrastructure(policies);
+  CheckerFactory::customizeInfrastructure(policies);
 }
 
 } // namespace o2::quality_control::core

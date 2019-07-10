@@ -14,6 +14,7 @@
 ///
 
 #include <Framework/DataProcessorSpec.h>
+#include <Framework/DeviceSpec.h>
 
 #include "QualityControl/Checker.h"
 #include "QualityControl/CheckerFactory.h"
@@ -28,7 +29,7 @@ DataProcessorSpec CheckerFactory::create(std::string checkerName, std::string co
 {
   Checker qcChecker{ checkerName, configurationSource };
 
-  DataProcessorSpec newChecker{ checkerName,
+  DataProcessorSpec newChecker{ qcChecker.getDeviceName(),
                                 qcChecker.getInputs(),
                                 Outputs{ qcChecker.getOutputSpec() },
                                 adaptFromTask<Checker>(std::move(qcChecker)),
@@ -43,7 +44,7 @@ DataProcessorSpec CheckerFactory::create(std::vector<std::string> checkerNames, 
 {
   Checker qcChecker{ checkerNames, configurationSource };
 
-  DataProcessorSpec newChecker{ checkerNames.front(), //TODO: Change the name
+  DataProcessorSpec newChecker{ qcChecker.getDeviceName(),
                                 qcChecker.getInputs(),
                                 Outputs{ qcChecker.getOutputSpec() },
                                 adaptFromTask<Checker>(std::move(qcChecker)),
@@ -53,6 +54,27 @@ DataProcessorSpec CheckerFactory::create(std::vector<std::string> checkerNames, 
 
   return newChecker;
 }
+
+void CheckerFactory::customizeInfrastructure(std::vector<framework::CompletionPolicy>& policies)
+{
+  auto matcher = [](framework::DeviceSpec const& device) {
+    return device.name.find(Checker::createCheckerIdString()) != std::string::npos;
+  };
+  auto callback = [](gsl::span<PartRef const> const& inputs){
+    // TODO: Check if need to check nullptr (done in checker::run)
+    for (auto& input : inputs) {
+      if (!(input.header == nullptr || input.payload == nullptr)) {
+        return framework::CompletionPolicy::CompletionOp::Consume;
+      }
+    }
+    return framework::CompletionPolicy::CompletionOp::Wait;
+  };
+
+
+  framework::CompletionPolicy checkerCompletionPolicy{ "checkerCompletionPolicy", matcher, callback };
+  policies.push_back(checkerCompletionPolicy);
+}
+
 
 
 } // namespace o2::quality_control::checker

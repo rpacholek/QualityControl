@@ -86,37 +86,18 @@ void CcdbDatabase::init()
   loadDeprecatedStreamerInfos();
 }
 
-void CcdbDatabase::store(std::shared_ptr<o2::quality_control::core::MonitorObject> mo)
-{
-  if (mo->getName().length() == 0 || mo->getTaskName().length() == 0) {
-    BOOST_THROW_EXCEPTION(DatabaseException()
-                          << errinfo_details("Object and task names can't be empty. Do not store."));
-  }
-
-  if (mo->getName().find_first_of("\t\n ") != string::npos || mo->getTaskName().find_first_of("\t\n ") != string::npos) {
-    BOOST_THROW_EXCEPTION(DatabaseException()
-                            << errinfo_details("Object and task names can't contain white spaces. Do not store."));
-  }
-
-  // metadata
-  map<string, string> metadata;
-  metadata["quality"] = std::to_string(mo->getQuality().getLevel());
-  map<string, string> userMetadata = mo->getMetadataMap();
-  if (!userMetadata.empty()) {
-    metadata.insert(userMetadata.begin(), userMetadata.end());
-  }
-
-  // other attributes
-  string path = mo->getTaskName() + "/" + mo->getName();
+void CcdbDatabase::store(std::shared_ptr<QualityObject> qo)
+{  // other attributes
+  string path = qo->getName();
   long from = getCurrentTimestamp();
   long to = getFutureTimestamp(60 * 60 * 24 * 365 * 10);
 
-  ccdbApi.store(mo.get(), path, metadata, from, to);
+  ccdbApi.store(dynamic_cast<TObject*>(qo.get()), path, qo->getMetadataMap(), from, to);
 }
 
-core::MonitorObject* CcdbDatabase::retrieve(std::string taskName, std::string objectName, long timestamp)
+std::shared_ptr<QualityObject> CcdbDatabase::retrieve(std::string checkerName, long timestamp)
 {
-  string path = taskName + "/" + objectName;
+  string path = checkerName;
   map<string, string> metadata;
   long when = timestamp == 0 ? getCurrentTimestamp() : timestamp;
 
@@ -130,22 +111,20 @@ core::MonitorObject* CcdbDatabase::retrieve(std::string taskName, std::string ob
       return nullptr;
     }
   }
-  auto* mo = dynamic_cast<core::MonitorObject*>(object);
-  if (mo == nullptr) {
-    LOG(ERROR) << "Could not cast the object " << taskName << "/" << objectName << " to MonitorObject";
+  std::shared_ptr<QualityObject> qo (dynamic_cast<QualityObject*>(object));
+  if (qo == nullptr) {
+    LOG(ERROR) << "Could not cast the object " << checkerName << " to QualityObject";
   }
-  return mo;
+  return qo;
 }
 
-std::string CcdbDatabase::retrieveJson(std::string taskName, std::string objectName)
+std::string CcdbDatabase::retrieveJson(std::string checkName)
 {
-  std::unique_ptr<core::MonitorObject> monitor(retrieve(taskName, objectName));
-  if (monitor == nullptr) {
+  auto qualityObject = retrieve(checkName);
+  if (qualityObject == nullptr) {
     return std::string();
   }
-  std::unique_ptr<TObject> obj(monitor->getObject());
-  monitor->setIsOwner(false);
-  TString json = TBufferJSON::ConvertToJSON(obj.get());
+  TString json = TBufferJSON::ConvertToJSON(qualityObject.get());
   return json.Data();
 }
 

@@ -21,11 +21,13 @@ set(
   src/runnerUtils.h
   src/ServiceDiscovery.cxx
   src/MonitorObjectPolicy.cxx
+  src/QualityObject.cxx
 )
 
 set(
   HEADERS # needed for the dictionary generation
   include/QualityControl/MonitorObject.h
+  include/QualityControl/QualityObject.h
   include/QualityControl/Quality.h
   include/QualityControl/CheckInterface.h
   include/QualityControl/Checker.h
@@ -228,8 +230,8 @@ set(
   test/testInfrastructureGenerator.cxx
   test/testTaskInterface.cxx
   test/testTaskRunner.cxx
-  test/testCheckInterface.cxx
-  test/testChecker.cxx
+  #  test/testCheckInterface.cxx
+  #  test/testChecker.cxx
   test/testQuality.cxx
   test/testObjectsManager.cxx
   test/testCcdbDatabase.cxx

@@ -17,6 +17,7 @@
 #define QC_REPOSITORY_DATABASEINTERFACE_H
 
 #include "QualityControl/MonitorObject.h"
+#include "QualityControl/QualityObject.h"
 #include <memory>
 #include <unordered_map>
 //#include <bits/unique_ptr.h>
@@ -56,7 +57,7 @@ class DatabaseInterface
    * Stores the serialized MonitorObject in the database.
    * @param mo The MonitorObject to serialize and store.
    */
-  virtual void store(std::shared_ptr<o2::quality_control::core::MonitorObject> mo) = 0;
+  virtual void store(std::shared_ptr<o2::quality_control::core::QualityObject> q) = 0;
 
   /**
    * Look up an object of a task and return it.
@@ -65,12 +66,12 @@ class DatabaseInterface
    * templates)
    * TODO evaluate whether we should have a method to retrieve a list of objects (optimization)
    */
-  virtual o2::quality_control::core::MonitorObject* retrieve(std::string taskName, std::string objectName, long timestamp = 0) = 0;
+  virtual std::shared_ptr<o2::quality_control::core::QualityObject> retrieve(std::string checkerName, long timestamp = 0) = 0;
 
   /**
    * Returns JSON encoded object
    */
-  virtual std::string retrieveJson(std::string taskName, std::string objectName) = 0;
+  virtual std::string retrieveJson(std::string checkName) = 0;
   virtual void disconnect() = 0;
   /**
    * \brief Prepare the container, such as a table in a relational database, that will contain the MonitorObject's for

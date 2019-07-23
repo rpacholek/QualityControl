@@ -223,7 +223,7 @@ endif()
 
 set(
   TEST_SRCS
-  test/testDbFactory.cxx
+  #  test/testDbFactory.cxx
   test/testMonitorObject.cxx
   test/testPublisher.cxx
   test/testQcInfoLogger.cxx
@@ -234,7 +234,7 @@ set(
   #  test/testChecker.cxx
   test/testQuality.cxx
   test/testObjectsManager.cxx
-  test/testCcdbDatabase.cxx
+  #  test/testCcdbDatabase.cxx
   test/testWorkflow.cxx
 )
 

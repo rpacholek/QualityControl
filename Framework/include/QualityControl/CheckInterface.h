@@ -82,10 +82,14 @@ class CheckInterface
   bool isObjectCheckable(const std::shared_ptr<MonitorObject> mo);
   bool isObjectCheckable(const MonitorObject* mo);
 
+  void setCustomParameters(const std::unordered_map<std::string, std::string>& parameters);
   //  private:
   //    std::string mName;
 
   ClassDef(CheckInterface, 1)
+
+ protected:
+  std::unordered_map<std::string, std::string> mCustomParameters;
 };
 
 } // namespace o2::quality_control::checker

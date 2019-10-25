@@ -60,6 +60,7 @@ add_library(QualityControl
             src/PostProcessingFactory.cxx
             src/PostProcessingConfig.cxx
             src/PostProcessingInterface.cxx
+            src/BenchmarkDevices.cxx
             src/DummyDatabase.cxx)
 
 if(ENABLE_MYSQL)
@@ -110,6 +111,7 @@ add_root_dictionary(QualityControl
                             include/QualityControl/InfrastructureGenerator.h
                             include/QualityControl/InputUtils.h
                             include/QualityControl/PostProcessingInterface.h
+                            include/QualityControl/BenchmarkDevices.h
                     LINKDEF include/QualityControl/LinkDef.h
                     BASENAME QualityControl)
 
@@ -127,7 +129,8 @@ set(EXE_SRCS
     src/runMergerTest.cxx
     src/runReadoutForDataDump.cxx
     src/runRepositoryBenchmark.cxx
-    src/runPostProcessing.cxx)
+    src/runPostProcessing.cxx
+    src/runBenchmark.cxx)
 
 set(EXE_NAMES
     o2-qc-info-service
@@ -141,7 +144,8 @@ set(EXE_NAMES
     o2-qc-run-merger-test
     o2-qc-run-readout-for-data-dump
     o2-qc-repository-benchmark
-    o2-qc-run-postprocessing)
+    o2-qc-run-postprocessing
+    o2-qc-run-benchmark)
 
 # These were the original names before the convention changed. We will get rid
 # of them but for the time being we want to create symlinks to avoid confusion.
@@ -157,7 +161,8 @@ set(EXE_OLD_NAMES
     runMergerTest
     qcRunReadoutForDataDump
     repositoryBenchmark
-    qcRunPostProcessing)
+    qcRunPostProcessing
+    qcRunBenchmark)
 
 # As per https://stackoverflow.com/questions/35765106/symbolic-links-cmake
 macro(install_symlink filepath sympath)
@@ -346,6 +351,7 @@ install(
 install(FILES example-default.json
               alfa.json
               dataDump.json
+              benchmark.json
               basic.json
               tpcQCPID.json
               basic-no-sampling.json

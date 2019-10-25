@@ -111,6 +111,7 @@ class Check
   std::string mModuleName;
   std::string mClassName;
   CheckInterface* mCheckInterface = nullptr;
+  std::unordered_map<std::string, std::string> mCustomParameters;
 
   // Policy
   std::string mPolicyType;

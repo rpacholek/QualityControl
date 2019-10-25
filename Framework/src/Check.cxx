@@ -71,7 +71,9 @@ void Check::initConfig()
     std::vector<std::string> inputs;
     const auto& conf = config->getRecursive("qc.checks." + mName);
     // Params
-
+    if (conf.count("checkParameters")){
+      mCustomParameters = config->getRecursiveMap("qc.checks." + mName + ".checkParameters");
+    }
     // Policy
     if (conf.count("policy")) {
       mPolicyType = conf.get<std::string>("policy");
@@ -254,6 +256,7 @@ void Check::loadLibrary()
     tempString += R"( because the class named ")";
     BOOST_THROW_EXCEPTION(FatalException() << errinfo_details(tempString));
   }
+  mCheckInterface->setCustomParameters(mCustomParameters);
   mCheckInterface->configure(mName);
 }
 

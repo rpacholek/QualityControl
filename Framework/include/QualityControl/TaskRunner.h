@@ -19,6 +19,7 @@
 
 //#include <boost/accumulators/accumulators.hpp>
 //#include <boost/accumulators/statistics.hpp>
+#include <chrono>
 // O2
 #include <Common/Timer.h>
 #include <Framework/Task.h>
@@ -131,13 +132,22 @@ class TaskRunner : public framework::Task
   framework::OutputSpec mMonitorObjectsSpec;
   framework::Options mOptions;
 
+  // stats
   bool mCycleOn = false;
   int mCycleNumber = 0;
-
-  // stats
-  int mNumberBlocks = 0;
-  int mNumberObjectsPublishedInCycle = 0;
-  int mTotalNumberObjectsPublished = 0;
+  // Objects received/published
+  int mTotalBlocks = 0;
+  int mBlocksInCycle = 0;
+  int mTotalObjectsPublished = 0;
+  int mObjectsPublishedInCycle = 0;
+  // Timing
+  std::chrono::system_clock::time_point mCycleStart;
+  std::chrono::system_clock::time_point mRunStart;
+  std::chrono::system_clock::time_point mModuleRun;
+  long mRunTime = 0;
+  long mModuleTime = 0;
+  
+  //Other
   double mLastPublicationDuration = 0;
   AliceO2::Common::Timer mTimerTotalDurationActivity;
   AliceO2::Common::Timer mTimerDurationCycle;

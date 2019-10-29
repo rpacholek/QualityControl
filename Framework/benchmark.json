@@ -24,10 +24,10 @@
     },
     "benchmark": {
       "BENCH1": {
-        "size": 10000,
-        "frequency": 1000,
-        "quantity": 10000,
-        "output": "BENCH1"
+        "size": "10000",
+        "frequency": "1000",
+        "output": "BENC/BENCH1/0",
+        "duration": "720000000"
       }
     },
     "tasks": {

@@ -125,7 +125,8 @@ CheckRunner::CheckRunner(std::vector<Check> checks, std::string configurationSou
     startFirstObject{ system_clock::time_point::min() },
     endLastObject{ system_clock::time_point::min() }
 {
-  mTotalNumberHistosReceived = 0;
+  mConfigFile = ConfigurationFactory::getConfiguration(mConfigurationSource);
+  mTotalObjectsReceived = 0;
 }
 
 CheckRunner::CheckRunner(Check check, std::string configurationSource)
@@ -138,10 +139,10 @@ CheckRunner::~CheckRunner()
   // Monitoring
   if (mCollector) {
     std::chrono::duration<double> diff = endLastObject - startFirstObject;
-    mCollector->send({ diff.count(), "QC_checker_Time_between_first_and_last_objects_received" });
-    mCollector->send({ mTotalNumberHistosReceived, "QC_checker_Total_number_histos_treated" });
-    double rate = mTotalNumberHistosReceived / diff.count();
-    mCollector->send({ rate, "QC_checker_Rate_objects_treated_per_second_whole_run" });
+    mCollector->send({ diff.count(), "QC/check/Time_between_first_and_last_objects_received" });
+    mCollector->send({ mTotalObjectsReceived, "QC/check/Total_number_histos_treated" });
+    double rate = mTotalObjectsReceived / diff.count();
+    mCollector->send({ rate, "QC/check/Rate_objects_treated_per_second_whole_run" });
   }
 }
 
@@ -154,13 +155,17 @@ void CheckRunner::init(framework::InitContext&)
   }
 }
 
+
 void CheckRunner::run(framework::ProcessingContext& ctx)
 {
 
+  auto run_start = system_clock::now();
   // Save time of first object
   if (startFirstObject == std::chrono::system_clock::time_point::min()) {
     startFirstObject = system_clock::now();
   }
+
+  mTotalCalls++;
 
   for (const auto& input : mInputs) {
     auto dataRef = ctx.inputs().get(input.binding.c_str());
@@ -176,7 +181,7 @@ void CheckRunner::run(framework::ProcessingContext& ctx)
 
         if (mo) {
           update(mo);
-          mTotalNumberHistosReceived++;
+          mTotalObjectsReceived++;
         } else {
           mLogger << "The mo is null" << AliceO2::InfoLogger::InfoLogger::endm;
         }
@@ -185,18 +190,35 @@ void CheckRunner::run(framework::ProcessingContext& ctx)
   }
 
   // Check if compliant with policy
+  auto check_start = system_clock::now();
   auto triggeredChecks = check(mMonitorObjects);
+  mCheckDuration += std::chrono::duration_cast<std::chrono::microseconds>(system_clock::now() - check_start).count();
+
+  auto store_start = system_clock::now();
   store(triggeredChecks);
+  mStoreDuration += std::chrono::duration_cast<std::chrono::microseconds>(system_clock::now() - store_start).count();
+
   send(triggeredChecks, ctx.outputs());
 
   // Update global revision number
   updateRevision();
 
+
+  mRunDuration += std::chrono::duration_cast<std::chrono::microseconds>(system_clock::now() - run_start).count();
+
   // monitoring
   endLastObject = system_clock::now();
   if (timer.isTimeout()) {
     timer.reset(1000000); // 10 s.
-    mCollector->send({ mTotalNumberHistosReceived, "objects" }, o2::monitoring::DerivedMetricMode::RATE);
+    double run_duration = mRunDuration/mTotalCalls;
+    double check_duration = mCheckDuration/mTotalCalls;
+    double store_duration = mStoreDuration/mTotalCalls;
+
+    mCollector->send({ mTotalObjectsReceived, "QC/check/total/objects_received" }, o2::monitoring::DerivedMetricMode::RATE);
+    mCollector->send({ mTotalObjectsPublished, "QC/check/total/objects_published" }, o2::monitoring::DerivedMetricMode::RATE);
+    mCollector->send({ run_duration, "QC/check/rate/run_duration" }, o2::monitoring::DerivedMetricMode::RATE);
+    mCollector->send({ check_duration, "QC/check/rate/check_duration" }, o2::monitoring::DerivedMetricMode::RATE);
+    mCollector->send({ store_duration, "QC/check/rate/store_duration" }, o2::monitoring::DerivedMetricMode::RATE);
   }
 }
 
@@ -262,6 +284,7 @@ void CheckRunner::send(std::vector<Check*>& checks, framework::DataAllocator& al
 {
   mLogger << "Send  " << checks.size() << " quality objects" << AliceO2::InfoLogger::InfoLogger::endm;
   for (auto check : checks) {
+    mTotalObjectsPublished++;
     auto outputSpec = check->getOutputSpec();
     auto concreteOutput = framework::DataSpecUtils::asConcreteDataMatcher(outputSpec);
     allocator.snapshot(
@@ -309,7 +332,9 @@ void CheckRunner::initMonitoring()
 {
   // monitoring
   try {
-    mCollector = MonitoringFactory::Get("infologger://");
+    std::string monitoringUrl = mConfigFile->get<std::string>("qc.config.monitoring.url", "infologger:///debug?qc");
+    mCollector = MonitoringFactory::Get(monitoringUrl);
+    mCollector->enableProcessMonitoring();
   } catch (...) {
     std::string diagnostic = boost::current_exception_diagnostic_information();
     LOG(ERROR) << "Unexpected exception, diagnostic information follows:\n"

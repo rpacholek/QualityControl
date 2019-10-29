@@ -82,6 +82,7 @@ void TaskRunner::init(InitContext& iCtx)
 
 void TaskRunner::run(ProcessingContext& pCtx)
 {
+  mRunStart = std::chrono::system_clock::now();
   if (mTaskConfig.maxNumberCycles >= 0 && mCycleNumber >= mTaskConfig.maxNumberCycles) {
     LOG(INFO) << "The maximum number of cycles (" << mTaskConfig.maxNumberCycles << ") has been reached.";
     return;
@@ -94,8 +95,13 @@ void TaskRunner::run(ProcessingContext& pCtx)
   auto [dataReady, timerReady] = validateInputs(pCtx.inputs());
 
   if (dataReady) {
+    mModuleRun = std::chrono::system_clock::now();
+    
     mTask->monitorData(pCtx);
-    mNumberBlocks++;
+
+    mModuleTime += std::chrono::duration_cast<std::chrono::microseconds>(mModuleRun - std::chrono::system_clock::now()).count();
+    mBlocksInCycle++;
+    mTotalBlocks++;
   }
 
   if (timerReady) {
@@ -107,6 +113,7 @@ void TaskRunner::run(ProcessingContext& pCtx)
       startCycle();
     }
   }
+  mRunTime += std::chrono::duration_cast<std::chrono::microseconds>(mModuleRun - std::chrono::system_clock::now()).count();
 }
 
 CompletionPolicy::CompletionOp TaskRunner::completionPolicyCallback(gsl::span<PartRef const> const& inputs)
@@ -322,16 +329,18 @@ void TaskRunner::endOfActivity()
                     mConfigFile->get<int>("qc.config.Activity.type"));
   mTask->endOfActivity(activity);
 
-  double rate = mTotalNumberObjectsPublished / mTimerTotalDurationActivity.getTime();
-  mCollector->send({ rate, "QC_task_Rate_objects_published_per_second_whole_run" });
+  double rate = mTotalObjectsPublished / mTimerTotalDurationActivity.getTime();
+  mCollector->send({ rate, "QC/task/total/rate/objects_published_per_second" });
 }
 
 void TaskRunner::startCycle()
 {
   QcInfoLogger::GetInstance() << "cycle " << mCycleNumber << " in " << mTaskConfig.taskName << AliceO2::InfoLogger::InfoLogger::endm;
   mTask->startOfCycle();
-  mNumberBlocks = 0;
-  mNumberObjectsPublishedInCycle = 0;
+
+  mObjectsPublishedInCycle = 0;
+  mBlocksInCycle = 0;
+
   mTimerDurationCycle.reset();
   mCycleOn = true;
 }
@@ -340,8 +349,8 @@ void TaskRunner::finishCycle(DataAllocator& outputs)
 {
   mTask->endOfCycle();
 
-  mNumberObjectsPublishedInCycle += publish(outputs);
-  mTotalNumberObjectsPublished += mNumberObjectsPublishedInCycle;
+  mObjectsPublishedInCycle += publish(outputs);
+  mTotalObjectsPublished += mObjectsPublishedInCycle;
 
   publishCycleStats();
   mObjectsManager->updateServiceDiscovery();
@@ -358,19 +367,20 @@ void TaskRunner::finishCycle(DataAllocator& outputs)
 void TaskRunner::publishCycleStats()
 {
   double cycleDuration = mTimerDurationCycle.getTime();
-  double rate = mNumberObjectsPublishedInCycle / (cycleDuration + mLastPublicationDuration);
-  double wholeRunRate = mTotalNumberObjectsPublished / mTimerTotalDurationActivity.getTime();
+  double rate = mObjectsPublishedInCycle / (cycleDuration + mLastPublicationDuration);
+  double wholeRunRate = mTotalObjectsPublished / mTimerTotalDurationActivity.getTime();
   double totalDurationActivity = mTimerTotalDurationActivity.getTime();
 
   // monitoring metrics
-  mCollector->send({ mNumberBlocks, "QC_task_Numberofblocks_in_cycle" });
-  mCollector->send({ cycleDuration, "QC_task_Module_cycle_duration" });
-  mCollector->send({ mLastPublicationDuration, "QC_task_Publication_duration" });
-  mCollector->send({ mNumberObjectsPublishedInCycle, "QC_task_Number_objects_published_in_cycle" });
-  mCollector->send({ rate, "QC_task_Rate_objects_published_per_second" });
-  mCollector->send({ mTotalNumberObjectsPublished, "QC_task_Total_objects_published_whole_run" });
-  mCollector->send({ totalDurationActivity, "QC_task_Total_duration_activity_whole_run" });
-  mCollector->send({ wholeRunRate, "QC_task_Rate_objects_published_per_second_whole_run" });
+  mCollector->send({ mBlocksInCycle, "QC/task/cycle/blocks_received" });
+  mCollector->send({ mTotalBlocks, "QC/task/total/blocks_received" });
+  mCollector->send({ cycleDuration, "QC/task/cycle/duration" });
+  mCollector->send({ mLastPublicationDuration, "QC/task/last/publication_duration" });
+  mCollector->send({ mObjectsPublishedInCycle, "QC/task/cycle/objects_published" });
+  mCollector->send({ mTotalObjectsPublished, "QC/task/total/objects_published" });
+  mCollector->send({ totalDurationActivity, "QC/task/total/activity_duration" });
+  mCollector->send({ rate, "QC/task/rate/objects_published_per_second" });
+  mCollector->send({ wholeRunRate, "QC/task/rate/objects_published_per_second" });
 }
 
 int TaskRunner::publish(DataAllocator& outputs)

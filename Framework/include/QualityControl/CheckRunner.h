@@ -29,6 +29,7 @@
 #include <Headers/DataHeader.h>
 #include <Monitoring/MonitoringFactory.h>
 #include <Framework/DataProcessorSpec.h>
+#include <Configuration/ConfigurationFactory.h>
 // QC
 #include "QualityControl/CheckInterface.h"
 #include "QualityControl/DatabaseInterface.h"
@@ -167,6 +168,7 @@ class CheckRunner : public framework::Task
   std::string mConfigurationSource;
   o2::quality_control::core::QcInfoLogger& mLogger;
   std::shared_ptr<o2::quality_control::repository::DatabaseInterface> mDatabase;
+  std::shared_ptr<o2::configuration::ConfigurationInterface> mConfigFile; // used in init only
   std::map<std::string, unsigned int> mMonitorObjectRevision;
   unsigned int mGlobalRevision;
 
@@ -187,7 +189,8 @@ class CheckRunner : public framework::Task
   std::shared_ptr<o2::monitoring::Monitoring> mCollector;
   std::chrono::system_clock::time_point startFirstObject;
   std::chrono::system_clock::time_point endLastObject;
-  int mTotalNumberHistosReceived;
+  int mTotalObjectsReceived, mTotalObjectsPublished, mTotalCalls;
+  int mRunDuration, mStoreDuration, mCheckDuration;
   AliceO2::Common::Timer timer;
 };
 

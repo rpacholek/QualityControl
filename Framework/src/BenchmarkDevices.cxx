@@ -4,8 +4,8 @@
 #include <TRandom1.h>
 
 #include <Framework/DataRefUtils.h>
-#include <Configuration/ConfigurationFactory.h>
 #include <Framework/ControlService.h>
+#include <Configuration/ConfigurationFactory.h>
 
 #include "QualityControl/BenchmarkDevices.h"
 
@@ -13,6 +13,7 @@ using namespace o2::quality_control::benchmark;
 using namespace AliceO2::Common;
 using namespace o2::configuration;
 using namespace o2::framework;
+using namespace o2::monitoring;
 
 o2::header::DataDescription createDescription(std::string name, std::string postfix = "") {
   o2::header::DataDescription description;
@@ -20,16 +21,38 @@ o2::header::DataDescription createDescription(std::string name, std::string post
   return description;
 }
 
-GeneratorDevice::GeneratorDevice(std::string name, std::string sourceConf):mName(name),mOutputSpec("BENC", createDescription(name)){
+std::unique_ptr<Monitoring> initMonitoring(std::unique_ptr<ConfigurationInterface>& config) {
   try {
-    std::unique_ptr<ConfigurationInterface> config = ConfigurationFactory::getConfiguration(sourceConf);
+    std::string monitoringPath = config->get<std::string>(std::string("qc.config.monitoring.url"), std::string("infologger:///debug?qc"));
+    if (monitoringPath.empty()) {
+      monitoringPath = "infologger:///debug?qc";
+    }
+    std::unique_ptr<Monitoring> monitor = MonitoringFactory::Get(monitoringPath);
+    return monitor;
+  } catch (...) {
+    std::string diagnostic = boost::current_exception_diagnostic_information();
+    LOG(ERROR) << "Unexpected exception, diagnostic information follows:\n"
+               << diagnostic;
+    throw;
+  }
+  return nullptr;
+}
 
-    const auto& conf = config->getRecursive("qc.benchmark." + name);
+GeneratorDevice::GeneratorDevice(std::string name, std::string sourceConf)
+  :mName(name),
+   mConfigSource(sourceConf),
+   mOutputSpec("BENC", createDescription(name))
+{
+  try {
+    mConfigFile = ConfigurationFactory::getConfiguration(sourceConf);
+
+    const auto& conf = mConfigFile->getRecursive("qc.benchmark." + name);
     mSize = std::stoi(conf.get<std::string>("size"));
     mFrequency = std::stoi(conf.get<std::string>("frequency"));
-    //mDuration = std::stoi(conf.get<std::string>("duration"));
-    mQuantity = std::stoi(conf.get<std::string>("quantity"));
-    LOG(INFO) << "Params: " << mSize << " f" << mFrequency;
+    mDuration = std::stoi(conf.get<std::string>("duration"));
+    mDelay = std::stoi(conf.get<std::string>("delay"));
+    //mQuantity = std::stoi(conf.get<std::string>("quantity"));
+
 
   } catch (...) {
     std::string diagnostic = boost::current_exception_diagnostic_information();
@@ -65,44 +88,52 @@ std::vector<GeneratorDevice> GeneratorDevice::createGeneratorDevices(std::string
   return devices;
 }
 
-void GeneratorDevice::init(InitContext& context) {
+void GeneratorDevice::init(InitContext&) {
   LOG(INFO) << "Initiate generator";
-  sleep(10);
+  mMonitoring = initMonitoring(mConfigFile);
 }
 
 void GeneratorDevice::run(framework::ProcessingContext& ctx) {
   if (mFirstTime) {
     mFirstTime = false;
-    sleep(30); // Wait 2min to setup whole workflow
+    sleep(mDelay); // Wait to setup whole workflow
 
-    // TODO: Influxdb started marker
+    mExperimentTimer.reset(mDuration*1000*1000);
+    mStatTimer.reset(mStatPeriod);
 
     LOG(INFO) << "Start sending";
+    mMonitoring->send({ 0, "QC/generator/start_end" });
     return;
   }
-  if (mQuantity > 0) {
+
+  if (!mExperimentTimer.isTimeout()) {
     usleep(mFrequency);
     auto output = framework::DataSpecUtils::asConcreteDataMatcher(mOutputSpec);
     ctx.outputs().snapshot(
         framework::Output{ output.origin, output.description }, 
         *mObject
     );
-    --mQuantity;
+    ++mQuantity;
   } else {
+    mMonitoring->send({ 1, "QC/generator/start_end" });
     LOG(INFO) << "Finished - now sleep";
-    sleep(20); // Wait 20 seconds to complete - around 2 cycles
+    sleep(mDelay); // Wait to complete - around 2 cycles
 
-    // TODO: Influxdb stop marker
-    
     ctx.services().get<ControlService>().readyToQuit(true);
+  }
+
+  if(mStatTimer.isTimeout()){
+    mMonitoring->send({ mQuantity, "QC/generator/objects_published" });
+    mMonitoring->send({ 2, "QC/generator/start_end" });
+    mStatTimer.reset(mStatPeriod); //Every 10s
   }
 }
 
 CollectorDevice::CollectorDevice(std::string sourceConf) {
   try {
-    std::unique_ptr<ConfigurationInterface> config = ConfigurationFactory::getConfiguration(sourceConf);
+    mConfigFile = ConfigurationFactory::getConfiguration(sourceConf);
 
-    const auto& conf = config->getRecursive("qc.checks");
+    const auto& conf = mConfigFile->getRecursive("qc.checks");
 
     for (auto& [checkName, checkConf]: conf) {
       (void)checkConf;
@@ -117,18 +148,27 @@ CollectorDevice::CollectorDevice(std::string sourceConf) {
     throw;
   }
 
+  mStatTimer.reset(mStatPeriod);
 }
+
+void CollectorDevice::init(InitContext&) {
+  mMonitoring = initMonitoring(mConfigFile);
+}
+
 
 void CollectorDevice::run(framework::ProcessingContext& ctx) {
   LOG(INFO) << "Running collection";
-  mGlobalReceived++;
   for (const auto& input : mInputs) {
     auto dataRef = ctx.inputs().get(input.binding.c_str());
     if (dataRef.header != nullptr && dataRef.payload != nullptr) {
       //auto moArray = ctx.inputs().get<TObjArray*>(input.binding.c_str());
+      mGlobalReceived++;
       mCollected[input.binding]++;
     }
   }
-  
-  // TODO: Publish stats
+ 
+  if(mStatTimer.isTimeout()){
+    mMonitoring->send({ mGlobalReceived, "QC/collector/total/objects_received" });
+    mStatTimer.reset(mStatPeriod); //Every 10s
+  } 
 }

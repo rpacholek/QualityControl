@@ -51,9 +51,7 @@ GeneratorDevice::GeneratorDevice(std::string name, std::string sourceConf)
     mFrequency = std::stoi(conf.get<std::string>("frequency"));
     mDuration = std::stoi(conf.get<std::string>("duration"));
     mDelay = std::stoi(conf.get<std::string>("delay"));
-
-    mAdaptive = conf.get<std::string>("adaptive") == "true";
-    mAdaptiveTimer.reset(1000*1000*60);
+    mAdaptivePeriod = std::stoi(conf.get<std::string>("adaptive"));
     //mQuantity = std::stoi(conf.get<std::string>("quantity"));
 
 
@@ -102,17 +100,17 @@ void GeneratorDevice::run(framework::ProcessingContext& ctx) {
     mFirstTime = false;
     sleep(mDelay); // Wait to setup whole workflow
 
-    mExperimentTimer.reset(mDuration*1000*1000);
+    mExperimentTimer.reset(mDuration*second);
     mStatTimer.reset(mStatPeriod);
-    mAdaptiveTimer.reset(mAdaptivePeriod);
+    mAdaptiveTimer.reset(mAdaptivePeriod*second);
 
     LOG(INFO) << "============Start sending============";
     mMonitoring->send({ 1, "QC/generator/start_end" });
     return;
   }
 
-  if (mAdaptive && mAdaptiveTimer.isTimeout()) {
-    mAdaptiveTimer.reset(mAdaptivePeriod);
+  if (mAdaptivePeriod && mAdaptiveTimer.isTimeout()) {
+    mAdaptiveTimer.reset(mAdaptivePeriod*second);
     mFrequency = mFrequency / 2;
   }
 
@@ -133,7 +131,7 @@ void GeneratorDevice::run(framework::ProcessingContext& ctx) {
   }
 
   if(mStatTimer.isTimeout()){
-    auto sub = mQuantity - mLastQuantity;
+    int sub = mQuantity - mLastQuantity;
     mLastQuantity = mQuantity;
     mMonitoring->send({ mQuantity, "QC/generator/total/objects_published" });
     mMonitoring->send({ sub, "QC/generator/rate/objects_published_per_10_sec" });

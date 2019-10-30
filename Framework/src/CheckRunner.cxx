@@ -210,15 +210,16 @@ void CheckRunner::run(framework::ProcessingContext& ctx)
   endLastObject = system_clock::now();
   if (timer.isTimeout()) {
     timer.reset(1000000); // 10 s.
-    double run_duration = mRunDuration/mTotalCalls;
-    double check_duration = mCheckDuration/mTotalCalls;
-    double store_duration = mStoreDuration/mTotalCalls;
+    double run_duration = 1.0*mRunDuration/mTotalCalls;
+    double check_duration = 1.0*mCheckDuration/mTotalCalls;
+    double store_duration = 1.0*mStoreDuration/mTotalCalls;
 
-    mCollector->send({ mTotalObjectsReceived, "QC/check/total/objects_received" }, o2::monitoring::DerivedMetricMode::RATE);
-    mCollector->send({ mTotalObjectsPublished, "QC/check/total/objects_published" }, o2::monitoring::DerivedMetricMode::RATE);
-    mCollector->send({ run_duration, "QC/check/rate/run_duration" }, o2::monitoring::DerivedMetricMode::RATE);
-    mCollector->send({ check_duration, "QC/check/rate/check_duration" }, o2::monitoring::DerivedMetricMode::RATE);
-    mCollector->send({ store_duration, "QC/check/rate/store_duration" }, o2::monitoring::DerivedMetricMode::RATE);
+    mCollector->send({ mTotalObjectsReceived, "QC/check/total/objects_received" });
+    mCollector->send({ mTotalObjectsPublished, "QC/check/total/objects_published" });
+    mCollector->send({ mRunDuration, "QC/check/total/run_duration" });
+    mCollector->send({ run_duration, "QC/check/rate/run_duration" });
+    mCollector->send({ check_duration, "QC/check/rate/check_duration" });
+    mCollector->send({ store_duration, "QC/check/rate/store_duration" });
   }
 }
 

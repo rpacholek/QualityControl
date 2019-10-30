@@ -13,7 +13,7 @@
         "type": "2"
       },
       "monitoring": {
-        "url": "infologger:///debug?qc"
+        "url": "influxdb-udp://influxdb:8088/debug"
       },
       "consul": {
         "url": "http://consul-test.cern.ch:8500"
@@ -27,7 +27,9 @@
         "size": "10000",
         "frequency": "1000",
         "output": "BENC/BENCH1/0",
-        "duration": "720000000"
+        "duration": "900",
+        "delay": "20",
+        "adaptive": "true"
       }
     },
     "tasks": {

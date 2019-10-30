@@ -30,14 +30,18 @@ class GeneratorDevice : public framework::Task {
     int mFrequency = 10; // usec
     int mDuration = 100; // seconds
     int mQuantity = 0;
+    int mLastQuantity = 0;
     int mDelay = 30; // seconds
     TArrayD* mObject;
     bool mFirstTime = true;
+    bool mAdaptive = false;
 
     const int mStatPeriod = 10 * 1000 * 1000;
+    const int mAdaptivePeriod = 300 * 1000 * 1000;
     
     AliceO2::Common::Timer mExperimentTimer;
     AliceO2::Common::Timer mStatTimer;
+    AliceO2::Common::Timer mAdaptiveTimer;
     
   std::unique_ptr<o2::configuration::ConfigurationInterface> mConfigFile; // used in init only
   std::unique_ptr<o2::monitoring::Monitoring> mMonitoring;
@@ -56,7 +60,7 @@ class CollectorDevice : public framework::Task {
   private:
     framework::Inputs mInputs;
     std::map<std::string, int> mCollected;
-    int mGlobalReceived;
+    int mGlobalReceived = 0;
     std::unique_ptr<o2::configuration::ConfigurationInterface> mConfigFile; // used in init only
     std::unique_ptr<o2::monitoring::Monitoring> mMonitoring;
     AliceO2::Common::Timer mStatTimer;

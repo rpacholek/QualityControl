@@ -51,6 +51,9 @@ GeneratorDevice::GeneratorDevice(std::string name, std::string sourceConf)
     mFrequency = std::stoi(conf.get<std::string>("frequency"));
     mDuration = std::stoi(conf.get<std::string>("duration"));
     mDelay = std::stoi(conf.get<std::string>("delay"));
+
+    mAdaptive = conf.get<std::string>("adaptive") == "true";
+    mAdaptiveTimer.reset(1000*1000*60);
     //mQuantity = std::stoi(conf.get<std::string>("quantity"));
 
 
@@ -95,15 +98,22 @@ void GeneratorDevice::init(InitContext&) {
 
 void GeneratorDevice::run(framework::ProcessingContext& ctx) {
   if (mFirstTime) {
+    mMonitoring->send({ 0, "QC/generator/start_end" });
     mFirstTime = false;
     sleep(mDelay); // Wait to setup whole workflow
 
     mExperimentTimer.reset(mDuration*1000*1000);
     mStatTimer.reset(mStatPeriod);
+    mAdaptiveTimer.reset(mAdaptivePeriod);
 
-    LOG(INFO) << "Start sending";
-    mMonitoring->send({ 0, "QC/generator/start_end" });
+    LOG(INFO) << "============Start sending============";
+    mMonitoring->send({ 1, "QC/generator/start_end" });
     return;
+  }
+
+  if (mAdaptive && mAdaptiveTimer.isTimeout()) {
+    mAdaptiveTimer.reset(mAdaptivePeriod);
+    mFrequency = mFrequency / 2;
   }
 
   if (!mExperimentTimer.isTimeout()) {
@@ -115,16 +125,19 @@ void GeneratorDevice::run(framework::ProcessingContext& ctx) {
     );
     ++mQuantity;
   } else {
-    mMonitoring->send({ 1, "QC/generator/start_end" });
-    LOG(INFO) << "Finished - now sleep";
+    mMonitoring->send({ 2, "QC/generator/start_end" });
+    LOG(INFO) << "============Finished - now sleep=========";
     sleep(mDelay); // Wait to complete - around 2 cycles
 
     ctx.services().get<ControlService>().readyToQuit(true);
   }
 
   if(mStatTimer.isTimeout()){
-    mMonitoring->send({ mQuantity, "QC/generator/objects_published" });
-    mMonitoring->send({ 2, "QC/generator/start_end" });
+    auto sub = mQuantity - mLastQuantity;
+    mLastQuantity = mQuantity;
+    mMonitoring->send({ mQuantity, "QC/generator/total/objects_published" });
+    mMonitoring->send({ sub, "QC/generator/rate/objects_published_per_10_sec" });
+    mMonitoring->send({ mFrequency, "QC/generator/last/frequency" });
     mStatTimer.reset(mStatPeriod); //Every 10s
   }
 }

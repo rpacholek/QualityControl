@@ -24,7 +24,7 @@ void customize(std::vector<CompletionPolicy>& policies)
   quality_control::customizeInfrastructure(policies);
   
   auto matcher = [](framework::DeviceSpec const& device) {
-    return device.name.find("Collector") != std::string::npos;
+    return device.name.find("collector") != std::string::npos;
   };
   auto callback = [](gsl::span<PartRef const> const& inputs) {
     // TODO: Check if need to check nullptr (done in checker::run)

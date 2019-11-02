@@ -335,6 +335,7 @@ void CheckRunner::initMonitoring()
   try {
     std::string monitoringUrl = mConfigFile->get<std::string>("qc.config.monitoring.url", "infologger:///debug?qc");
     mCollector = MonitoringFactory::Get(monitoringUrl);
+    mCollector->addGlobalTag("device", mDeviceName);
     mCollector->enableProcessMonitoring();
   } catch (...) {
     std::string diagnostic = boost::current_exception_diagnostic_information();

@@ -189,8 +189,8 @@ class CheckRunner : public framework::Task
   std::shared_ptr<o2::monitoring::Monitoring> mCollector;
   std::chrono::system_clock::time_point startFirstObject;
   std::chrono::system_clock::time_point endLastObject;
-  int mTotalObjectsReceived, mTotalObjectsPublished, mTotalCalls;
-  int mRunDuration, mStoreDuration, mCheckDuration;
+  uint64_t mTotalObjectsReceived, mTotalObjectsPublished, mTotalCalls;
+  uint64_t mRunDuration, mStoreDuration, mCheckDuration;
   AliceO2::Common::Timer timer;
 };
 

@@ -92,7 +92,7 @@ std::vector<GeneratorDevice> GeneratorDevice::createGeneratorDevices(std::string
 void GeneratorDevice::init(InitContext&) {
   LOG(INFO) << "Initiate generator";
   mMonitoring = initMonitoring(mConfigFile);
-  mMonitoring->addGlobalTag("device", mName);
+  mMonitoring->addGlobalTag("dataprocessor_id", mName);
 }
 
 void GeneratorDevice::run(framework::ProcessingContext& ctx) {

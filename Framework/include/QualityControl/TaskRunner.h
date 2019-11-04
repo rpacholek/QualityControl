@@ -135,6 +135,7 @@ class TaskRunner : public framework::Task
   // stats
   bool mCycleOn = false;
   int mCycleNumber = 0;
+  uint64_t mRunCalls = 0;
   // Objects received/published
   uint64_t mTotalBlocks = 0;
   uint64_t mBlocksInCycle = 0;
@@ -144,7 +145,7 @@ class TaskRunner : public framework::Task
   std::chrono::system_clock::time_point mCycleStart;
   std::chrono::system_clock::time_point mRunStart;
   std::chrono::system_clock::time_point mModuleRun;
-  uint64_t mRunTime = 0;
+  double mRunTime = 0;
   uint64_t mModuleTime = 0;
   
   //Other

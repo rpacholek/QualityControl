@@ -192,11 +192,11 @@ void CheckRunner::run(framework::ProcessingContext& ctx)
   // Check if compliant with policy
   auto check_start = system_clock::now();
   auto triggeredChecks = check(mMonitorObjects);
-  mCheckDuration += std::chrono::duration_cast<std::chrono::microseconds>(system_clock::now() - check_start).count();
+  mCheckDuration += std::chrono::duration_cast<std::chrono::microseconds>(system_clock::now() - check_start);
 
   auto store_start = system_clock::now();
   store(triggeredChecks);
-  mStoreDuration += std::chrono::duration_cast<std::chrono::microseconds>(system_clock::now() - store_start).count();
+  mStoreDuration += std::chrono::duration_cast<std::chrono::microseconds>(system_clock::now() - store_start);
 
   send(triggeredChecks, ctx.outputs());
 
@@ -204,22 +204,23 @@ void CheckRunner::run(framework::ProcessingContext& ctx)
   updateRevision();
 
 
-  mRunDuration += std::chrono::duration_cast<std::chrono::microseconds>(system_clock::now() - run_start).count();
+  mRunDuration += std::chrono::duration_cast<std::chrono::microseconds>(system_clock::now() - run_start);
 
   // monitoring
   endLastObject = system_clock::now();
   if (timer.isTimeout()) {
     timer.reset(1000000); // 10 s.
-    double run_duration = 1.0*mRunDuration/mTotalCalls;
-    double check_duration = 1.0*mCheckDuration/mTotalCalls;
-    double store_duration = 1.0*mStoreDuration/mTotalCalls;
+    double run_duration = mRunDuration.count()/mTotalCalls;
+    double check_duration = mCheckDuration.count()/mTotalCalls;
+    double store_duration = mStoreDuration.count()/mTotalCalls;
 
     mCollector->send({ mTotalObjectsReceived, "QC/check/total/objects_received" });
     mCollector->send({ mTotalObjectsPublished, "QC/check/total/objects_published" });
-    mCollector->send({ mRunDuration, "QC/check/total/run_duration" });
+    mCollector->send({ mRunDuration.count(), "QC/check/total/run_duration" });
     mCollector->send({ run_duration, "QC/check/rate/run_duration" });
     mCollector->send({ check_duration, "QC/check/rate/check_duration" });
     mCollector->send({ store_duration, "QC/check/rate/store_duration" });
+    mCollector->send({ mTotalCalls, "QC/check/total/calls" });
   }
 }
 

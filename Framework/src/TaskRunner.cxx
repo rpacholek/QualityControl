@@ -88,6 +88,7 @@ void TaskRunner::run(ProcessingContext& pCtx)
     LOG(INFO) << "The maximum number of cycles (" << mTaskConfig.maxNumberCycles << ") has been reached.";
     return;
   }
+  mRunCalls++;
 
   if (!mCycleOn) {
     startCycle();
@@ -114,7 +115,7 @@ void TaskRunner::run(ProcessingContext& pCtx)
       startCycle();
     }
   }
-  mRunTime += std::chrono::duration_cast<std::chrono::microseconds>(mModuleRun - std::chrono::system_clock::now()).count();
+  mRunTime += std::chrono::duration<double>(std::chrono::system_clock::now() - mRunStart).count();
 }
 
 CompletionPolicy::CompletionOp TaskRunner::completionPolicyCallback(gsl::span<PartRef const> const& inputs)
@@ -352,12 +353,12 @@ void TaskRunner::finishCycle(DataAllocator& outputs)
 
   mObjectsPublishedInCycle += publish(outputs);
   mTotalObjectsPublished += mObjectsPublishedInCycle;
+  
+  mCycleNumber++;
+  mCycleOn = false;
 
   publishCycleStats();
   mObjectsManager->updateServiceDiscovery();
-
-  mCycleNumber++;
-  mCycleOn = false;
 
   if (mTaskConfig.maxNumberCycles == mCycleNumber) {
     LOG(INFO) << "The maximum number of cycles (" << mTaskConfig.maxNumberCycles << ") has been reached."
@@ -376,11 +377,12 @@ void TaskRunner::publishCycleStats()
   mCollector->send({ mBlocksInCycle, "QC/task/cycle/blocks_received" });
   mCollector->send({ mTotalBlocks, "QC/task/total/blocks_received" });
   mCollector->send({ cycleDuration, "QC/task/cycle/duration" });
+  mCollector->send({ mRunTime/mRunCalls, "QC/task/rate/run_duration" });
   mCollector->send({ mLastPublicationDuration, "QC/task/last/publication_duration" });
   mCollector->send({ mObjectsPublishedInCycle, "QC/task/cycle/objects_published" });
   mCollector->send({ mTotalObjectsPublished, "QC/task/total/objects_published" });
   mCollector->send({ totalDurationActivity, "QC/task/total/activity_duration" });
-  mCollector->send({ rate, "QC/task/rate/objects_published_per_second" });
+  mCollector->send({ rate, "QC/task/cycle/objects_published_per_second" });
   mCollector->send({ wholeRunRate, "QC/task/rate/objects_published_per_second" });
 }
 

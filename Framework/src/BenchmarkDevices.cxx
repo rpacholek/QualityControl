@@ -132,11 +132,11 @@ void GeneratorDevice::run(framework::ProcessingContext& ctx) {
   }
 
   if(mStatTimer.isTimeout()){
-    int sub = mQuantity - mLastQuantity;
+    double sub = (mQuantity - mLastQuantity)/mStatTimer.getTime();
     mLastQuantity = mQuantity;
     mMonitoring->send({ mQuantity, "QC/generator/total/objects_published" });
-    mMonitoring->send({ sub, "QC/generator/rate/objects_published_per_10_sec" });
-    mMonitoring->send({ mFrequency, "QC/generator/last/frequency" });
+    mMonitoring->send({ sub, "QC/generator/rate/frequency" });
+    mMonitoring->send({ mFrequency, "QC/generator/last/config_time" });
     mStatTimer.reset(mStatPeriod); //Every 10s
   }
 }

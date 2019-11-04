@@ -43,7 +43,7 @@ class GeneratorDevice : public framework::Task {
     AliceO2::Common::Timer mExperimentTimer;
     AliceO2::Common::Timer mStatTimer;
     AliceO2::Common::Timer mAdaptiveTimer;
-    
+
   std::unique_ptr<o2::configuration::ConfigurationInterface> mConfigFile; // used in init only
   std::unique_ptr<o2::monitoring::Monitoring> mMonitoring;
 

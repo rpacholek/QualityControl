@@ -96,7 +96,8 @@ void BenchmarkTask::monitorData(o2::framework::ProcessingContext& ctx)
   // get the payload of a specific input, which is a char array. "random" is the binding specified in the config file.
    auto payload = ctx.inputs().get<TArrayD*>("random");
    for (int i = 0; i<payload->GetSize(); ++i) {
-    mHistogram->Fill((*payload)[i]);
+     mHistogram->Reset();
+     mHistogram->Fill((*payload)[i]);
    }
 
   // get payload of a specific input, which is a structure array:

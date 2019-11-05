@@ -39,26 +39,6 @@ void BenchmarkCheck::configure(std::string) {
 Quality BenchmarkCheck::check(std::map<std::string, std::shared_ptr<MonitorObject>>* moMap)
 {
   Quality result = Quality::Null;
-
-  for (auto& [moName, mo] : *moMap) {
-
-    (void)moName;
-    if (mo->getName() == "example") {
-      auto* h = dynamic_cast<TH1F*>(mo->getObject());
-
-      result = Quality::Good;
-
-      for (int i = 0; i < h->GetNbinsX(); i++) {
-        if (i > 0 && i < 8 && h->GetBinContent(i) == 0) {
-          result = Quality::Bad;
-          break;
-        } else if ((i == 0 || i > 7) && h->GetBinContent(i) > 0) {
-          result = Quality::Medium;
-        }
-      }
-    }
-  }
-  
   spinsleep(mDuration);
 
   return result;
@@ -69,18 +49,7 @@ std::string BenchmarkCheck::getAcceptedType() { return "TH1"; }
 void BenchmarkCheck::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult)
 {
   if (mo->getName() == "example") {
-    auto* h = dynamic_cast<TH1F*>(mo->getObject());
-
-    if (checkResult == Quality::Good) {
-      h->SetFillColor(kGreen);
-    } else if (checkResult == Quality::Bad) {
-      LOG(INFO) << "Quality::Bad, setting to red";
-      h->SetFillColor(kRed);
-    } else if (checkResult == Quality::Medium) {
-      LOG(INFO) << "Quality::medium, setting to orange";
-      h->SetFillColor(kOrange);
-    }
-    h->SetLineColor(kBlack);
+    spinsleep(mDuration);
   }
 }
 

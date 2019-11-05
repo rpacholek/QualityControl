@@ -257,6 +257,7 @@ std::vector<Check*> CheckRunner::check(std::map<std::string, std::shared_ptr<Mon
 void CheckRunner::store(std::vector<Check*>& checks)
 {
   mLogger << "Storing " << checks.size() << " quality objects" << AliceO2::InfoLogger::InfoLogger::endm;
+  mCollector->send({ checks.size(), "QC/check/once/stored_quality_objects" });
   try {
     for (auto check : checks) {
       mDatabase->storeQO(check->getQualityObject());
@@ -276,6 +277,7 @@ void CheckRunner::store(std::vector<Check*>& checks)
         moNames.insert(name);
       }
     }
+    mCollector->send({ moNames.size(), "QC/check/once/stored_monitor_objects" });
     for (auto name: moNames) {
       mDatabase->storeMO(mMonitorObjects[name]);
     }

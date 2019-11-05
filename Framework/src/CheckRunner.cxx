@@ -21,8 +21,8 @@
 
 #include <utility>
 #include <memory>
-#include <random>
 #include <set>
+#include <functional>
 // ROOT
 #include <TClass.h>
 #include <TSystem.h>
@@ -90,11 +90,14 @@ std::string CheckRunner::createCheckRunnerName(std::vector<Check> checks)
     // If single check, use the check name
     name += checks[0].getName();
   } else {
-    std::default_random_engine generator;
-    std::uniform_int_distribution<int> distribution(0, alphanumeric.size());
-
+    std::string hash_string = "";
+    for (auto& c: checks){
+      hash_string += c.getName();
+    }
+    std::size_t num = std::hash<std::string>{}(hash_string);
     for (int i = 0; i < NAME_LEN; ++i) {
-      name += alphanumeric[distribution(generator)];
+      name += alphanumeric[num%alphanumeric.size()];
+      num = num / alphanumeric.size(); 
     }
   }
   return name;

@@ -53,6 +53,12 @@
           "MOs": ["example"]
         }]
       }
+    },
+    "alarms":{
+      "NoData": {
+        "active": "true",
+        "condition": "Check::QcCheck == Quality::Null"
+      }
     }
   },
   "dataSamplingPolicies": [

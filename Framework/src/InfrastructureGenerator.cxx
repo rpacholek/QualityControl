@@ -26,7 +26,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <Configuration/ConfigurationFactory.h>
 #include <QualityControl/HistoMerger.h>
-#include <QualityControl/TaskRunner.h>
+#include <QualityControl/AlarmFactory.h>
 #include "QualityControl/Check.h"
 #include <Framework/DataSpecUtils.h>
 
@@ -35,6 +35,7 @@
 using namespace o2::framework;
 using namespace o2::configuration;
 using namespace o2::quality_control::checker;
+using namespace o2::quality_control::alarm;
 using boost::property_tree::ptree;
 
 namespace o2::quality_control::core
@@ -85,6 +86,7 @@ o2::framework::WorkflowSpec InfrastructureGenerator::generateRemoteInfrastructur
 
   TaskRunnerFactory taskRunnerFactory;
   CheckRunnerFactory checkerFactory;
+  AlarmFactory alarmFactory;
   for (const auto& [taskName, taskConfig] : config->getRecursive("qc.tasks")) {
     // todo sanitize somehow this if-frenzy
     if (taskConfig.get<bool>("active", true)) {
@@ -148,6 +150,15 @@ o2::framework::WorkflowSpec InfrastructureGenerator::generateRemoteInfrastructur
     workflow.emplace_back(checkerFactory.create(checks, configurationSource));
   }
 
+  if (config->getRecursive("qc").get_child_optional("alarms")) {
+    for (const auto& [alarmName, alarmConfig] : config->getRecursive("qc.alarms")) {
+      QcInfoLogger::GetInstance() << ">> Alarm name : " << alarmName << AliceO2::InfoLogger::InfoLogger::endm;
+      if (alarmConfig.get<bool>("active", true)) {
+        workflow.emplace_back(alarmFactory.create(alarmName, configurationSource));
+      }
+    }
+  }
+
   return workflow;
 }
 
@@ -161,6 +172,7 @@ void InfrastructureGenerator::customizeInfrastructure(std::vector<framework::Com
 {
   TaskRunnerFactory::customizeInfrastructure(policies);
   CheckRunnerFactory::customizeInfrastructure(policies);
+  AlarmFactory::customizeInfrastructure(policies);
 }
 
 void InfrastructureGenerator::printVersion()

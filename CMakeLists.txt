@@ -87,6 +87,8 @@ find_package(Boost 1.58
                         log
                         system)
 find_package(Git QUIET)
+find_package(BISON REQUIRED)
+find_package(FLEX REQUIRED)
 find_package(Configuration REQUIRED)
 find_package(Monitoring REQUIRED)
 find_package(MySQL)

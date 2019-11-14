@@ -34,6 +34,39 @@ add_root_dictionary(QualityControlTypes
   BASENAME QualityControlTypes
   )
 
+# ---- Alarm Parser ----
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/QualityControl)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/src)
+
+bison_target(QualityControlParser 
+  src/Parser.yy 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Parser.cxx
+  DEFINES_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/Parser.h
+  )
+
+# Copy generated include file to source include directory
+file(COPY ${BISON_QualityControlParser_OUTPUT_HEADER} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/include/QualityControl)
+
+flex_target(QualityControlScanner
+  src/Scanner.ll
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Scanner.cxx.in
+  )
+
+ADD_FLEX_BISON_DEPENDENCY(QualityControlScanner QualityControlParser)
+
+# Remove "register" keyword from generated code
+# This change is included in 2.6.4, but on Centos7 there is version 2.5.57
+add_custom_target( 
+  QualityControlScannerFix
+  COMMAND ${CMAKE_COMMAND} -E env sed -i "s/register //g" ${CMAKE_CURRENT_SOURCE_DIR}/src/Scanner.cxx.in
+  COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_SOURCE_DIR}/src/Scanner.cxx.in ${CMAKE_CURRENT_SOURCE_DIR}/src/Scanner.cxx
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/Scanner.cxx.in
+  BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/src/Scanner.cxx
+  )
+#file(READ ${CMAKE_CURRENT_SOURCE_DIR}/src/Scanner.cxx scanner_cxx)
+#string(REPLACE "register " "" scanner_cxx "${scanner_cxx}")
+#file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/src/Scanner.cxx "${scanner_cxx}")
+
 # ---- Library ----
 
 add_library(QualityControl
@@ -60,8 +93,15 @@ add_library(QualityControl
             src/PostProcessingFactory.cxx
             src/PostProcessingConfig.cxx
             src/PostProcessingInterface.cxx
+            src/Alarm.cxx
+            src/AlarmFactory.cxx
+            src/Expression.cxx
             src/DummyDatabase.cxx
-            src/DataProducer.cxx)
+            src/DataProducer.cxx
+            src/Parser.cxx
+            src/Scanner.cxx
+            ${BISON_QualityControlParser_OUTPUTS})
+          #${FLEX_QualityControlScanner_OUTPUTS})
 
 if(ENABLE_MYSQL)
   target_sources(QualityControl PRIVATE src/MySqlDatabase.cxx)
@@ -111,6 +151,8 @@ add_root_dictionary(QualityControl
                             include/QualityControl/InfrastructureGenerator.h
                             include/QualityControl/InputUtils.h
                             include/QualityControl/PostProcessingInterface.h
+                            include/QualityControl/Alarm.h
+                            include/QualityControl/AlarmFactory.h
                     LINKDEF include/QualityControl/LinkDef.h
                     BASENAME QualityControl)
 

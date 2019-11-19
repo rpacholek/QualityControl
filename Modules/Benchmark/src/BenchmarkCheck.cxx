@@ -21,8 +21,10 @@
 #include <fairlogger/Logger.h>
 // ROOT
 #include <TH1.h>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 namespace o2::quality_control_modules::benchmark
 {
@@ -40,6 +42,10 @@ Quality BenchmarkCheck::check(std::map<std::string, std::shared_ptr<MonitorObjec
 {
   Quality result = Quality::Null;
   spinsleep(mDuration);
+  if (moMap->count("QcTask/counter")){
+	auto* h = dynamic_cast<TH1F*>((*moMap)["QcTask/counter"]->getObject());
+	LOG(INFO) << "Check counter: " << h->GetEntries() << " Time: " << duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+  }
 
   return result;
 }

@@ -60,7 +60,7 @@
         "dataSource": [{
           "type": "Task",
           "name": "QcTask",
-          "MOs": ["example"]
+          "MOs": ["example", "counter"]
         }],
         "checkParameters": {
           "time": "1000"

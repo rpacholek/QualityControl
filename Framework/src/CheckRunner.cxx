@@ -161,15 +161,13 @@ void CheckRunner::init(framework::InitContext&)
 
 void CheckRunner::run(framework::ProcessingContext& ctx)
 {
-
   auto run_start = system_clock::now();
   // Save time of first object
   if (startFirstObject == std::chrono::system_clock::time_point::min()) {
     startFirstObject = system_clock::now();
   }
 
-  mTotalCalls++;
-
+  mUpdated = false;
   for (const auto& input : mInputs) {
     auto dataRef = ctx.inputs().get(input.binding.c_str());
     if (dataRef.header != nullptr && dataRef.payload != nullptr) {
@@ -183,6 +181,7 @@ void CheckRunner::run(framework::ProcessingContext& ctx)
         std::shared_ptr<MonitorObject> mo{ dynamic_cast<MonitorObject*>(to) };
 
         if (mo) {
+      	  mUpdated = true;
           update(mo);
           mTotalObjectsReceived++;
         } else {
@@ -192,6 +191,8 @@ void CheckRunner::run(framework::ProcessingContext& ctx)
     }
   }
 
+  if (mUpdated) {
+  mTotalCalls++;
   // Check if compliant with policy
   auto check_start = system_clock::now();
   auto triggeredChecks = check(mMonitorObjects);
@@ -211,6 +212,7 @@ void CheckRunner::run(framework::ProcessingContext& ctx)
 
   // monitoring
   endLastObject = system_clock::now();
+  }
   if (timer.isTimeout()) {
     timer.reset(1000000); // 10 s.
     double run_duration = mRunDuration.count()/mTotalCalls;
@@ -240,6 +242,7 @@ std::vector<Check*> CheckRunner::check(std::map<std::string, std::shared_ptr<Mon
 
   std::vector<Check*> triggeredChecks;
   for (auto& check : mChecks) {
+  auto check_start = system_clock::now();
     if (check.isReady(mMonitorObjectRevision)) {
       auto qualityObj = check.check(moMap);
       // Check if shared_ptr != nullptr
@@ -250,6 +253,8 @@ std::vector<Check*> CheckRunner::check(std::map<std::string, std::shared_ptr<Mon
       // Was checked, update latest revision
       check.updateRevision(mGlobalRevision);
     }
+    uint64_t len = std::chrono::duration_cast<std::chrono::microseconds>(system_clock::now() - check_start).count();
+    mCollector->send({ len, "QC/check/single/check_duration" });
   }
   return triggeredChecks;
 }

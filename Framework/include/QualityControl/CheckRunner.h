@@ -190,6 +190,8 @@ class CheckRunner : public framework::Task
   std::chrono::system_clock::time_point startFirstObject;
   std::chrono::system_clock::time_point endLastObject;
   uint64_t mTotalObjectsReceived = 0, mTotalObjectsPublished = 0, mTotalCalls = 0;
+  int mParalel = 0;
+  bool mUpdated = false;
   std::chrono::duration<double> mRunDuration, mStoreDuration, mCheckDuration;
   AliceO2::Common::Timer timer;
 };

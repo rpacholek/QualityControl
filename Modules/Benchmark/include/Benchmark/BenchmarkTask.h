@@ -49,6 +49,7 @@ class BenchmarkTask /*final*/ : public TaskInterface // todo add back the "final
 
  private:
   TH1F* mHistogram = nullptr;
+  TH1F* mHistogram2 = nullptr;
   long int mDuration = 0;
 };
 

@@ -112,6 +112,7 @@ void GeneratorDevice::run(framework::ProcessingContext& ctx) {
 
   if (mAdaptivePeriod && mAdaptiveTimer.isTimeout()) {
     mAdaptiveTimer.reset(mAdaptivePeriod*second);
+    LOG(INFO) << "============Freq step ========= " << mQuantity;
     mFrequency = mFrequency / 2;
   }
 

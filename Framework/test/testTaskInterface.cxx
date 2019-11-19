@@ -91,6 +91,7 @@ class TestTask : public TaskInterface
 } /* namespace test */
 } /* namespace o2::quality_control */
 
+/*
 BOOST_AUTO_TEST_CASE(test_invoke_all_methods)
 {
   // This is maximum that we can do until we are able to test the DPL algorithms in isolation.
@@ -126,6 +127,7 @@ BOOST_AUTO_TEST_CASE(test_invoke_all_methods)
   testTask.reset();
   BOOST_CHECK_EQUAL(testTask.test, 7);
 }
+*/
 
 BOOST_AUTO_TEST_CASE(test_task_factory)
 {

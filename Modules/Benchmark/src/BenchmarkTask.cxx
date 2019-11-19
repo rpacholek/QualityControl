@@ -13,6 +13,7 @@
 ///
 
 #include <string>
+#include <chrono>
 
 #include <TCanvas.h>
 #include <TH1.h>
@@ -21,6 +22,8 @@
 #include "QualityControl/QcInfoLogger.h"
 #include "Benchmark/BenchmarkTask.h"
 #include "Benchmark/SpinSleep.h"
+
+using namespace std::chrono;
 
 namespace o2::quality_control_modules::benchmark
 {
@@ -42,7 +45,9 @@ void BenchmarkTask::initialize(o2::framework::InitContext& /*ctx*/)
   }
 
   mHistogram = new TH1F("example", "example", 20, 0, 30000);
+  mHistogram2 = new TH1F("counter", "counter", 20, 0, 30000);
   getObjectsManager()->startPublishing(mHistogram);
+  getObjectsManager()->startPublishing(mHistogram2);
   getObjectsManager()->addMetadata(mHistogram->GetName(), "custom", "34");
 }
 
@@ -128,6 +133,8 @@ void BenchmarkTask::monitorData(o2::framework::ProcessingContext& ctx)
 
 void BenchmarkTask::endOfCycle()
 {
+   mHistogram2->Fill(1);
+   LOG(INFO) << "Task counter: " << mHistogram2->GetEntries() << " Time: " << duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
   QcInfoLogger::GetInstance() << "endOfCycle" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 

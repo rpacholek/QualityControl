@@ -42,9 +42,12 @@ Quality BenchmarkCheck::check(std::map<std::string, std::shared_ptr<MonitorObjec
 {
   Quality result = Quality::Null;
   spinsleep(mDuration);
-  if (moMap->count("QcTask/counter")){
-	auto* h = dynamic_cast<TH1F*>((*moMap)["QcTask/counter"]->getObject());
-	LOG(INFO) << "Check counter: " << h->GetEntries() << " Time: " << duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+  for (auto& [key, value]: *moMap) {
+    LOG(INFO) << "KEY: "<< key;
+    if (key.find("counter")!=std::string::npos) {
+      auto* h = dynamic_cast<TH1F*>(value->getObject());
+      LOG(INFO) << "Check counter "<< key <<": " << h->GetEntries() << " Time: " << duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    }
   }
 
   return result;
@@ -55,7 +58,7 @@ std::string BenchmarkCheck::getAcceptedType() { return "TH1"; }
 void BenchmarkCheck::beautify(std::shared_ptr<MonitorObject> mo, Quality checkResult)
 {
   if (mo->getName() == "example") {
-    spinsleep(mDuration);
+    LOG(INFO) << "Running beautify";
   }
 }
 
